@@ -49,6 +49,10 @@ public class LoginActivity extends AppCompatActivity {
                 // What is the HTTP method?
                 // What parameters need to be provided?
 
+                // TODO (2) Using AsyncHttpClient, check if the user has been authenticated successfully
+                // If the user can log in, extract the id and API Key from the JSON object, set them into Intent and start MainActivity Intent.
+                // If the user cannot log in, display a toast to inform user that login has failed.
+
                 RequestParams params = new RequestParams();
                 params.add("username", etUsername.getText().toString());
                 params.add("password", etPassword.getText().toString());
@@ -69,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                                     String id = response.getString("id");
 
                                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                    i.putExtra("id", id);
+                                    i.putExtra("loginId", id);
                                     i.putExtra("apikey", apikey);
                                     startActivity(i);
 
@@ -88,10 +92,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-    // TODO (2) Using AsyncHttpClient, check if the user has been authenticated successfully
-    // If the user can log in, extract the id and API Key from the JSON object, set them into Intent and start MainActivity Intent.
-    // If the user cannot log in, display a toast to inform user that login has failed.
 
 
 

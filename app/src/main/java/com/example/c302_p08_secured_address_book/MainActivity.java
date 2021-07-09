@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private AsyncHttpClient client;
 
     // TODO (3) Declare loginId and apikey
-    String loginId, apikey;
+    private String loginId, apikey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO (4) Get loginId and apikey from the previous Intent
         Intent intent = getIntent();
-        loginId = intent.getStringExtra("id");
+        loginId = intent.getStringExtra("loginId");
         apikey = intent.getStringExtra("apikey");
 
         lvContact.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
 
                 // TODO (7) When a contact is selected, create an Intent to View Contact Details
                 // Put the following into intent:- contact_id, loginId, apikey
+                Intent i = new Intent(MainActivity.this, ViewContactDetailsActivity.class);
+                i.putExtra("contact_id", selectedContact.getContactId());
+                i.putExtra("loginId", loginId);
+                i.putExtra("apikey", apikey);
+                startActivity(i);
 
             }
         });
@@ -78,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
         // What is the web service URL?
         // What is the HTTP method?
         // What parameters need to be provided?
+        // TODO (6) Using AsyncHttpClient for getListOfContacts.php, get all contacts from the results and show in the list
+
         RequestParams params = new RequestParams();
         params.add("loginId", loginId);
         params.add("apikey", apikey);
@@ -85,15 +92,29 @@ public class MainActivity extends AppCompatActivity {
         //for real devices, use the current location's ip address
         client.post("http://10.0.2.2/C302_P08_SecuredCloudAddressBook/getListOfContacts.php", params, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
 
                 try {
                     Log.i("JSON Results: ", response.toString());
 
+                    for (int i = 0; i < response.length(); i++) {
 
-                }
-                catch (JSONException e){
+                        JSONObject jsonObj = response.getJSONObject(i);
+
+                        int contactId = jsonObj.getInt("id");
+                        String firstName = jsonObj.getString("firstname");
+                        String lastName = jsonObj.getString("lastname");
+                        String mobile = jsonObj.getString("mobile");
+
+                        Contact contact = new Contact(contactId, firstName, lastName, mobile);
+                        alContact.add(contact);
+                    }
+
+                    aaContact = new ContactAdapter(getApplicationContext(), R.layout.contact_row, alContact);
+                    lvContact.setAdapter(aaContact);
+
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
@@ -101,8 +122,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-    // TODO (6) Using AsyncHttpClient for getListOfContacts.php, get all contacts from the results and show in the list
 
 
     @Override
@@ -123,6 +142,12 @@ public class MainActivity extends AppCompatActivity {
 
             // TODO (8) Create an Intent to Create Contact
             // Put the following into intent:- loginId, apikey
+
+            Intent i = new Intent(MainActivity.this, CreateContactActivity.class);
+            i.putExtra("loginId", loginId);
+            i.putExtra("apikey", apikey);
+            startActivity(i);
+
 
         }
         return super.onOptionsItemSelected(item);
